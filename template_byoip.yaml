@@ -1,0 +1,36 @@
+
+{%- set customers = count_cust -%}
+{%- set prefixes = count_prefix -%}
+
+
+{# THIS WILL GENERATE BYOIP PILLAR #}
+
+byoip:
+  announcement:
+{%- for customer_name in customers -%}
+    - {{ customer_name }}:
+  {%- for prefix in prefixes -%}
+      - prefix: {{ prefix }}
+        as: {{ asn }}
+        services:
+          - {{ service }}
+        state: active
+      {%- if ipv4_bool is False %}
+        ondemand: true
+      {%- else -%}
+        family: 6
+      {%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+
+
+firewall:
+{%- for customer_name in customers -%}
+    - {{ customer_name }}:
+  {%- for prefix in prefixes -%}
+        - prefix: {{ prefix }}
+          service: {{ service }}
+{%- endfor -%}
+
+
+
